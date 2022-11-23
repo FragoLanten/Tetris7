@@ -28,13 +28,13 @@ public class GameTetris {
                     {0,1,0,0},
                     {0,0,0,0}},
             {
-                    {0,1,1,0},
-                    {0,1,1,0},
+                    {1,1,0,0},
+                    {1,1,0,0},
                     {0,0,0,0},
                     {0,0,0,0}},
             {
-                    {0,1,1,1},
-                    {0,0,1,0},
+                    {1,1,1,0},
+                    {0,1,0,0},
                     {0,0,0,0},
                     {0,0,0,0}},
             {
@@ -43,8 +43,8 @@ public class GameTetris {
                     {0,0,0,0},
                     {0,0,0,0}},
             {
-                    {0,0,1,1},
                     {0,1,1,0},
+                    {1,1,0,0},
                     {0,0,0,0},
                     {0,0,0,0}}
     };
@@ -117,6 +117,8 @@ public class GameTetris {
 
     public class Figure {
         int type;
+        int size;
+        Color color;
         int figureY = 0;
         int figureX = 3;
 
@@ -124,15 +126,65 @@ public class GameTetris {
         boolean canMoveRight = true;
 
         int[][] figureMatrix = new int[4][4];
-        ArrayList<Block> blocklist = new ArrayList<>();
+        ArrayList<Block> blocklist = new ArrayList<Block>();
+
         public Figure () {
             Random random = new Random();
             type = random.nextInt(patterns.length);
+
+            sizeAndColorDefine();
+
+
             for (int y = 0; y < 4; y++) {
                 for (int x = 0; x < 4; x++) {
                     if (patterns[type][y][x]==1) {
                         blocklist.add(new Block(y+figureY,x+figureX));
                     }
+                }
+            }
+        }
+
+        public void sizeAndColorDefine() {
+            switch (type) {
+                case (0): {
+                    size=4;
+                    color = new Color(0,255,255);
+                    break;
+                }
+                case (1): {
+                    size=3;
+                    color = new Color(255,165,0);
+                    break;
+                }
+                case (2): {
+                    size=3;
+                    color = new Color(0,0,255);
+                    break;
+                }
+                case (3): {
+                    size=2;
+                    color = new Color(255,255,0);
+                    break;
+                }
+
+                case (4): {
+                    size=3;
+                    color = new Color(139,0,255);
+                    break;
+                }
+                case (5): {
+                    size=3;
+                    color = new Color(255,0,0);
+                    break;
+                }
+                case (6): {
+                    size=3;
+                    color = new Color(0,128,0);
+                    break;
+                }
+                default: {
+                    size=3;
+                    break;
                 }
             }
         }
@@ -153,9 +205,9 @@ public class GameTetris {
         }
 
         void stepDown() {
-            for (Block blocks:blocklist) {
-                blocks.setY(blocks.getY()+1);
-            }
+//            for (Block blocks:blocklist) {
+//                blocks.setY(blocks.getY()+1);
+//            }
         }
 
         void dropDown() {
@@ -202,6 +254,33 @@ public class GameTetris {
         }
 
         public void rotate() {
+            blocklist.clear();
+
+            for (int m = 0; m < 4; m++) {
+                for (int n = 0; n <4; n++) {
+                    figureMatrix[m][n] = patterns[type][n][m];
+                }
+            }
+            for (int m = 0; m<4; m++) {
+                for (int n = 0; n < 2; n++) {
+                    int temp = figureMatrix[m][n];
+                    figureMatrix[m][n]=figureMatrix[m][4-n-1];
+                    figureMatrix[m][4-n-1]= temp;
+                }
+            }
+
+            for (int y = 0; y < 4; y++) {
+                for (int x = 0; x < 4; x++) {
+                    patterns[type][y][x]=figureMatrix[y][x];
+                    if (figureMatrix[y][x]==1) {
+                        blocklist.add(new Block(y+figureY,x+figureX));
+                    }
+                }
+            }
+        }
+
+        public Color getColor() {
+            return color;
         }
 
         void paint(Graphics g) {
@@ -212,6 +291,7 @@ public class GameTetris {
     public class Block {
         private int y;
         private int x;
+        Color color;
 
         public Block(int y,int x) {
             setX(x);
@@ -235,7 +315,7 @@ public class GameTetris {
         }
 
         public void paint(Graphics g) {
-            g.setColor(Color.GREEN);
+            g.setColor(figure.getColor());
             g.fill3DRect(x*BLOCK_SIZE,y*BLOCK_SIZE, BLOCK_SIZE,BLOCK_SIZE,true);
         }
     }
@@ -248,7 +328,7 @@ public class GameTetris {
             for (int y = 0; y < GAME_HEIGHT; y++) {
                 for (int x = 0; x < GAME_WIDTH; x++) {
                     if (gameMatrix[y][x]==1) {
-                        g.setColor(Color.GREEN);
+                        g.setColor(figure.getColor());
                         g.fill3DRect(x*BLOCK_SIZE,y*BLOCK_SIZE, BLOCK_SIZE,BLOCK_SIZE,true);
                     }
                 }
