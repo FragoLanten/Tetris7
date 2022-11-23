@@ -68,7 +68,7 @@ public class GameTetris {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.getContentPane().add(drawPane);
-        drawPane.setBackground(Color.darkGray);
+        drawPane.setBackground(Color.BLACK);
         frame.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -118,7 +118,7 @@ public class GameTetris {
     public class Figure {
         int type;
         int size;
-        Color color;
+        int color;
         int figureY = 0;
         int figureX = 3;
 
@@ -148,38 +148,38 @@ public class GameTetris {
             switch (type) {
                 case (0): {
                     size=4;
-                    color = new Color(0,255,255);
+                    color = 0x00FFFF;
                     break;
                 }
                 case (1): {
                     size=3;
-                    color = new Color(255,165,0);
+                    color = 0xFF8C00;
                     break;
                 }
                 case (2): {
                     size=3;
-                    color = new Color(0,0,255);
+                    color = 0x0000FF;
                     break;
                 }
                 case (3): {
                     size=2;
-                    color = new Color(255,255,0);
+                    color = 0xFFFF00;
                     break;
                 }
 
                 case (4): {
                     size=3;
-                    color = new Color(139,0,255);
+                    color = 0x800080;
                     break;
                 }
                 case (5): {
                     size=3;
-                    color = new Color(255,0,0);
+                    color = 0xFF0000;
                     break;
                 }
                 case (6): {
                     size=3;
-                    color = new Color(0,128,0);
+                    color = 0x00FF00;
                     break;
                 }
                 default: {
@@ -191,7 +191,7 @@ public class GameTetris {
 
         boolean touchGround() {
             for (Block blocks:blocklist) {
-                if (gameMatrix[(blocks.getY()+1)][blocks.getX()]==1) {
+                if (gameMatrix[(blocks.getY()+1)][blocks.getX()]>0) {
                     return true;
                 }
             }
@@ -200,14 +200,14 @@ public class GameTetris {
 
         public void leaveOnGround() {
             for (Block blocks:blocklist) {
-                gameMatrix[(blocks.getY())][blocks.getX()]=1;
+                gameMatrix[(blocks.getY())][blocks.getX()]=color;
             }
         }
 
         void stepDown() {
-//            for (Block blocks:blocklist) {
-//                blocks.setY(blocks.getY()+1);
-//            }
+            for (Block blocks:blocklist) {
+                blocks.setY(blocks.getY()+1);
+            }
         }
 
         void dropDown() {
@@ -279,7 +279,7 @@ public class GameTetris {
             }
         }
 
-        public Color getColor() {
+        public int getColor() {
             return color;
         }
 
@@ -315,7 +315,7 @@ public class GameTetris {
         }
 
         public void paint(Graphics g) {
-            g.setColor(figure.getColor());
+            g.setColor(new Color(figure.getColor()));
             g.fill3DRect(x*BLOCK_SIZE,y*BLOCK_SIZE, BLOCK_SIZE,BLOCK_SIZE,true);
         }
     }
@@ -327,8 +327,8 @@ public class GameTetris {
 
             for (int y = 0; y < GAME_HEIGHT; y++) {
                 for (int x = 0; x < GAME_WIDTH; x++) {
-                    if (gameMatrix[y][x]==1) {
-                        g.setColor(figure.getColor());
+                    if (gameMatrix[y][x]>0) {
+                        g.setColor(new Color(gameMatrix[y][x]));
                         g.fill3DRect(x*BLOCK_SIZE,y*BLOCK_SIZE, BLOCK_SIZE,BLOCK_SIZE,true);
                     }
                 }
