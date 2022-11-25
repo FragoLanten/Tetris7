@@ -3,7 +3,9 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 public class GameTetris {
     final int BLOCK_SIZE = 25;
@@ -23,15 +25,16 @@ public class GameTetris {
                     {0,1,0,0},
                     {0,0,0,0}},
             {
-                    {0,1,1,0},
-                    {0,1,0,0},
-                    {0,1,0,0},
+                    {1,1,0,0},
+                    {1,0,0,0},
+                    {1,0,0,0},
                     {0,0,0,0}},
             {
-                    {1,1,0,0},
-                    {1,1,0,0},
                     {0,0,0,0},
+                    {0,1,1,0},
+                    {0,1,1,0},
                     {0,0,0,0}},
+
             {
                     {1,1,1,0},
                     {0,1,0,0},
@@ -43,9 +46,9 @@ public class GameTetris {
                     {0,0,0,0},
                     {0,0,0,0}},
             {
-                    {0,1,1,0},
+                    {1,0,0,0},
                     {1,1,0,0},
-                    {0,0,0,0},
+                    {0,1,0,0},
                     {0,0,0,0}}
     };
 
@@ -119,7 +122,7 @@ public class GameTetris {
         int type;
         int size;
         int color;
-        int figureY = 0;
+        int figureY = 3;
         int figureX = 3;
 
         boolean canMoveLeft = true;
@@ -131,13 +134,19 @@ public class GameTetris {
         public Figure () {
             Random random = new Random();
             type = random.nextInt(patterns.length);
-
             sizeAndColorDefine();
+            for (int i = 0; i < size; i++) {
+                System.arraycopy(patterns[type][i],0,figureMatrix[i],0, patterns[type][i].length);
+            }
+            createFromPattern();
 
 
+        }
+
+        void createFromPattern () {
             for (int y = 0; y < 4; y++) {
                 for (int x = 0; x < 4; x++) {
-                    if (patterns[type][y][x]==1) {
+                    if (figureMatrix[y][x]==1) {
                         blocklist.add(new Block(y+figureY,x+figureX));
                     }
                 }
@@ -162,7 +171,7 @@ public class GameTetris {
                     break;
                 }
                 case (3): {
-                    size=2;
+                    size=4;
                     color = 0xFFFF00;
                     break;
                 }
@@ -205,9 +214,10 @@ public class GameTetris {
         }
 
         void stepDown() {
-            for (Block blocks:blocklist) {
-                blocks.setY(blocks.getY()+1);
-            }
+//            for (Block blocks:blocklist) {
+//                blocks.setY(blocks.getY()+1);
+//            }
+
         }
 
         void dropDown() {
@@ -254,29 +264,17 @@ public class GameTetris {
         }
 
         public void rotate() {
+            for (int i = 0; i < size/2; i++) {
+                for (int j = i; j < size-1-i; j++) {
+                    int tmp = figureMatrix[size-1-j][i];
+                    figureMatrix[size-1-j][i] = figureMatrix[size-1-i][size-1-j];
+                    figureMatrix[size-1-i][size-1-j] = figureMatrix[j][size-1-i];
+                    figureMatrix[j][size-1-i] = figureMatrix[i][j];
+                    figureMatrix[i][j] = tmp;
+                }
+            }
             blocklist.clear();
-
-            for (int m = 0; m < 4; m++) {
-                for (int n = 0; n <4; n++) {
-                    figureMatrix[m][n] = patterns[type][n][m];
-                }
-            }
-            for (int m = 0; m<4; m++) {
-                for (int n = 0; n < 2; n++) {
-                    int temp = figureMatrix[m][n];
-                    figureMatrix[m][n]=figureMatrix[m][4-n-1];
-                    figureMatrix[m][4-n-1]= temp;
-                }
-            }
-
-            for (int y = 0; y < 4; y++) {
-                for (int x = 0; x < 4; x++) {
-                    patterns[type][y][x]=figureMatrix[y][x];
-                    if (figureMatrix[y][x]==1) {
-                        blocklist.add(new Block(y+figureY,x+figureX));
-                    }
-                }
-            }
+            createFromPattern();
         }
 
         public int getColor() {
@@ -291,7 +289,7 @@ public class GameTetris {
     public class Block {
         private int y;
         private int x;
-        Color color;
+
 
         public Block(int y,int x) {
             setX(x);
